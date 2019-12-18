@@ -152,11 +152,8 @@ class LRUCache:
     def __init__(self, limit=10):
         # if limit > 10:
         #     return None
-        
         self.limit = limit
         self.size = 0
-        self.head = None
-        self.tail = None
         self.node_map = {}
         self.storage = DoublyLinkedList()
 
@@ -168,10 +165,11 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        if key in self.node_map:
-            node = self.node_map[key]
-            self.storage.move_to_end(node)
-            return node.value[1]
+        if key in self.node_map.keys():
+            value = self.node_map[key]
+            self.storage.delete(value[1])
+            self.storage.add_to_head([key, value[0]])
+            return value[0]
         else:
             return None
 
@@ -186,4 +184,19 @@ class LRUCache:
     the newly-specified value.
     """
     def set(self, key, value):
-        pass
+        if key in self.node_map:
+            node_value = self.node_map[key]
+            self.storage.delete(node_value[1])
+            self.storage.add_to_head([key, value])
+            self.node_map[key] = [value, self.storage.head]
+            return
+
+        if self.limit is self.size:
+            last_node = self.storage.tail
+            self.storage.remove_from_tail()
+            del self.node_map[last_node.value[0]]
+            self.size -= 1
+
+        self.storage.add_to_head([key,value])
+        self.node_map[key] = [value, self.storage.head]
+        self.size += 1
