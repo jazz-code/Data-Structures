@@ -150,7 +150,15 @@ class LRUCache:
     to every node stored in the cache.
     """
     def __init__(self, limit=10):
-        pass
+        # if limit > 10:
+        #     return None
+        
+        self.limit = limit
+        self.size = 0
+        self.head = None
+        self.tail = None
+        self.node_map = {}
+        self.storage = DoublyLinkedList()
 
     """
     Retrieves the value associated with the given key. Also
@@ -160,7 +168,12 @@ class LRUCache:
     key-value pair doesn't exist in the cache.
     """
     def get(self, key):
-        pass
+        if key in self.node_map:
+            node = self.node_map[key]
+            self.storage.move_to_end(node)
+            return node.value[1]
+        else:
+            return None
 
     """
     Adds the given key-value pair to the cache. The newly-
